@@ -7,7 +7,6 @@ namespace Timesheet_Project.Models
     {
         public Timesheet()
         {
-            TimesheetActionLogs = new HashSet<TimesheetActionLog>();
             TimesheetItems = new HashSet<TimesheetItem>();
         }
 
@@ -19,7 +18,6 @@ namespace Timesheet_Project.Models
         public DateTime CreatedAt { get; set; }
 
         public virtual Employee Emp { get; set; } = null!;
-        public virtual ICollection<TimesheetActionLog> TimesheetActionLogs { get; set; }
         public virtual ICollection<TimesheetItem> TimesheetItems { get; set; }
     }
 }

@@ -7,7 +7,6 @@ namespace Timesheet_Project.Models
     {
         public Employee()
         {
-            EmpProjects = new HashSet<EmpProject>();
             TimesheetItems = new HashSet<TimesheetItem>();
             Timesheets = new HashSet<Timesheet>();
         }
@@ -16,7 +15,6 @@ namespace Timesheet_Project.Models
         public string Firstname { get; set; } = null!;
         public string Department { get; set; } = null!;
 
-        public virtual ICollection<EmpProject> EmpProjects { get; set; }
         public virtual ICollection<TimesheetItem> TimesheetItems { get; set; }
         public virtual ICollection<Timesheet> Timesheets { get; set; }
     }

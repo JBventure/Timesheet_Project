@@ -1,74 +1,117 @@
-﻿@model Timesheet_Project.Models.Timesheet
+﻿@model Timesheet_Project.ViewModel.TimesheetModel
 
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <div class="main-content">
     <section class="section">
         <div class="section-body">
-            @*<div class="row">
-            <div class="col-12 col-md-6 col-lg-6">*@
-            <div class="card">
-                <div class="card-header">
-                    <h4>New Timesheet</h4>
-                </div>
-                <div class="card-body">
-                    <nav aria-label="breadcrumb" class="mt-2 float-md-right float-left">
-                        <ol class="breadcrumb mb-0 justify-content-end p-0">
-                            <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                            @*<li class="breadcrumb-item"><a href="#">Library</a></li>*@
-                            <li class="breadcrumb-item active" aria-current="page">Create</li>
-                        </ol>
-                    </nav>
-                    <p>
-                        <a asp-action="Create" class="btn btn-primary">Create New</a>
-                    </p>
-                    <div class="card-body mr-2 float-md-right float-left" style="padding:0px;">
-                        <form asp-action="MyTimeSheet" method="post">
-                            <div class="card-body" style="padding:0px;">
-                                <div class="row">
-                                    <div class="col-6 col-md-5" style="padding: 5px;">
-                                        <select name="month" class="form-control" onchange="$('#btn_refresh').click()">
-                                            @* <option>...Select Month...</option> *@
-                                            <option value="1">January</option>
-                                            <option value="2">February</option>
-                                            <option value="3">March</option>
-                                            <option value="4">April</option>
-                                            <option value="5">May</option>
-                                            <option value="6">June</option>
-                                            <option value="7">July</option>
-                                            <option value="8">August</option>
-                                            <option value="9">September</option>
-                                            <option value="10">October</option>
-                                            <option value="11">November</option>
-                                            <option value="12">December</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-6 col-md-5" style="padding: 5px;">
-                                        <select name="year" onchange="$('#btn_refresh').click()" class="form-control">
-                                            @for (var i = 2021; i <= DateTime.Now.Year; i++)
-                                            {
-                                                <option value="@i">@i</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2" style="padding: 5px;">
-                                        <button type="submit" onClick="refreshPage()" class="btn btn-info btn-circle" id="btn_refresh"><i class="fas fa-redo-alt"></i></button>
-                                    </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            @if (ViewBag.Message != null)
+                            {
+                                <div class="alert alert-info">
+                                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                    @Html.Raw(ViewBag.Message)
                                 </div>
+                            }
+                        </div>
+                        <div class="d-flex align-items-center p-3">
+                            <h5 class="card-title mb-0 text-uppercase">Last TimeSheet</h5>
+                            <div class="ml-auto">
+                                <form asp-action="Create" method="post">
+                                    <div class="card-body" style="padding:0px;">
+                                        <div class="row">
+                                            <div class="col-6 col-md-5" style="padding: 5px;">
+                                                <select asp-for="month" class="form-control" onchange="$('#btn_refresh').click()">
+                                                    @* <option>...Select Month...</option> *@
+                                                    <option value="1">Jan</option>
+                                                    <option value="2">Feb</option>
+                                                    <option value="3">Mar</option>
+                                                    <option value="4">Apr</option>
+                                                    <option value="5">May</option>
+                                                    <option value="6">Jun</option>
+                                                    <option value="7">Jul</option>
+                                                    <option value="8">Aug</option>
+                                                    <option value="9">Sep</option>
+                                                    <option value="10">Oct</option>
+                                                    <option value="11">Nov</option>
+                                                    <option value="12">Dec</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6 col-md-5" style="padding: 5px;">
+                                                <select asp-for="year" onchange="$('#btn_refresh').click()" class="form-control">
+                                                    @for (var i = 2020; i <= DateTime.Now.Year; i++)
+                                                    {
+                                                        <option value="@i">@i</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2" style="padding: 5px;">
+                                                <button type="submit" class="btn btn-info btn-circle" id="btn_refresh"><i class="fas fa-redo-alt"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        </div>
+                        @*  <div class="p-3">
+                        <div id='calendar'></div>
+                        </div>*@
+                        <div class="card-body">
+                            <div class="fc-overflow">
+                                <div id="myEvent"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center p-3 mt-2">
+                            @* <h3 class="font-light">1 members selected</h3> *@
+                            <div class="ml-auto">
+                                @if (Model.Timesheet == null)
+                                {
+                                    <form asp-action="NewTimeSheet" method="post" id="frm_new_timesheet">
+                                        <input type="hidden" asp-for="year" value="@Model.year" />
+                                        <input type="hidden" asp-for="month" value="@Model.month" />
+                                    </form>
+                                    <a class="btn btn-primary text-white btn-rounded py-2 px-3" href="javascript:document.getElementById('frm_new_timesheet').submit()">Add <i class="fas fa-plus ml-2"></i></a>
+                                }
+                                else
+                                {
+                                    if (Model.Timesheet.State == "NOTSUBMITTED" || Model.Timesheet.State == "NOTSUBMITTED")
+                                    {
+                                        <a asp-controller="Timesheet" asp-action="Submit" asp-route-id="@Model.Timesheet.TimesheetId" class="btn btn-success text-white btn-rounded py-2 px-3">Submit <i class="fa fa-check ml-2"></i></a>
+                                        <a asp-controller="Timesheet" asp-action="Edit" asp-route-id="@Model.Timesheet.TimesheetId" class="btn btn-info text-white btn-rounded py-2 px-3">Edit <i class="fas fa-edit ml-2"></i></a>
+                                    }
+                                }
+                            </div>
+                        </div>
                     </div>
-                    @* <a href="#" class="btn btn-primary">Primary</a>*@
-                    @*   </div>
-                    </div>*@
                 </div>
             </div>
         </div>
     </section>
 </div>
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+
+<link href="~/assets/bundles/fullcalendar/fullcalendar.min.css" rel="stylesheet" />
+@*<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth'
+        });
+        calendar.render();
+    });
+
+</script>*@
+<script src="~/assets/bundles/fullcalendar/fullcalendar.min.js"></script>
+
+<script>
+    $(function () {
+        var timesheet_id = @(Model.Timesheet != null ? Model.Timesheet.TimesheetId : 0);
+        preview_timesheet_on_calendar(timesheet_id);
+        //Response.Redirect("~/Producter/Delete?id=" + ID)
+    });
+</script>
